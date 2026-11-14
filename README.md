@@ -124,12 +124,13 @@ If no cached results exist, the API returns HTTP `404`.
 
 ## Key Assumptions
 
-- **Calendar-day window:** Moving averages are calculated using calendar days rather than a fixed number of trading observations. Only available observations within the specified window are included.
-- **Missing prices:** Observations containing `null` or nonnumeric prices are excluded from calculations.
-- **Invalid dates:** Dates must follow the `YYYY-MM-DD` format. Invalid dates are reported and excluded.
-- **Outliers:** Unusually high or negative prices are retained if they are valid numeric values. No automatic outlier correction is applied because this could alter the original financial data.
+- **Calendar-day window:** Moving averages are calculated using calendar days rather than a fixed number of trading observations. The window includes the current observation date and the preceding `window_size - 1` calendar days.
+- **Invalid price values:** Negative prices, `null` values, and nonnumeric prices are assumed to be data errors and are excluded from calculations.
+- **Invalid dates:** Invalid dates are assumed to be data errors and are excluded from calculations. Dates are expected in the `YYYY-MM-DD` format.
+- **Missing observations:** Only valid observations within the specified calendar-day window are included. If a date has no valid recorded price, the application does not substitute an observation from an earlier date outside the window.
 - **Partial windows:** Moving averages are calculated even when fewer observations than the requested window size are available.
-- **Caching:** Results are stored locally in JSON files and identified by their window size. Recalculating the same window size overwrites the previously cached results.
+- **Outliers:** Unusually high positive prices are retained if they are valid numeric values. No additional outlier correction is applied.
+- **Caching:** Results are stored locally in a JSON file and identified by their window size. Recalculating the same window size overwrites the previously cached results.
 
 ## Unfinished Work and Next Steps
 
@@ -137,12 +138,14 @@ The application implements the core moving-average calculation, JSON caching, re
 
 Given more time, I would focus on:
 
-1. **Automated testing:** Add unit tests using `pytest` to verify moving-average calculations, invalid dates, missing prices, empty datasets, and cache retrieval.
+1. **Automated testing:** Add unit tests using `pytest` to verify moving-average calculations, invalid dates, missing and negative prices, empty datasets, and cache retrieval.
 2. **Improved input validation:** Introduce stricter validation and clearer error messages for invalid window sizes and malformed input data.
-3. **Outlier handling:** Investigate unusually high and negative prices and define an appropriate handling strategy based on business requirements.
+3. **Outlier handling:** Investigate unusually high prices and define an appropriate handling strategy based on business requirements.
 4. **Cache invalidation:** Detect changes to the input dataset and invalidate outdated cached results.
 5. **Performance optimization:** Improve the moving-average algorithm for larger datasets by avoiding repeated scans of all observations.
 6. **API improvements:** Add endpoints for retrieving results for a specific instrument or observation date, and improve response naming and validation.
+7. **Flexible input file paths:** Allow users to specify the location of the input JSON file instead of requiring it to be stored in the project's `data` directory.
+8. **User interface:** Add a frontend using a UI framework such as React to allow users to select a moving-average window, calculate and retrieve results, and visualize them in charts.
 
 ## Tools and Technologies Used
 

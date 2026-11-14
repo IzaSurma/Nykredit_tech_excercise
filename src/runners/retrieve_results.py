@@ -1,19 +1,13 @@
 import argparse
-from pathlib import Path
 
-from src.data_parser import retrieve_cached_results
+from src.data_parser import DataParser
 
+DATA_DIR = DataParser._project_root() / "data"
 
-def project_root():
-        for parent in Path(__file__).resolve().parents:
-            if (parent / "data").is_dir():
-                return parent
-        raise FileNotFoundError("Could not find project root containing data")
-
-cache_file = project_root() / "data" / "moving_average_cache.json"
+CACHE_FILE = DATA_DIR / "moving_average_cache.json"
 
 def retrieve_results(window_size: int):
-    moving_average_price = retrieve_cached_results(cache_file, window_size)
+    moving_average_price = DataParser.retrieve_cached_results(CACHE_FILE, window_size)
     return moving_average_price
 
 def main() -> None:
